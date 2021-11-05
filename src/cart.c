@@ -113,7 +113,7 @@ void tic_cart_load(tic_cartridge* cart, const u8* buffer, s32 size)
 #endif
     }
 
-    struct CodeChunk {s32 size; const char* data;} code[TIC_BANKS] = {0};
+    struct CodeChunk {s32 size; const u8* data;} code[TIC_BANKS] = {0};
 
     {
         const u8* ptr = buffer;

@@ -229,7 +229,7 @@ char *str_replace(char *orig, char *rep, char *with) {
 
     // count the number of replacements needed
     ins = orig;
-    for (count = 0; tmp = strstr(ins, rep); ++count) {
+    for (count = 0; (tmp = strstr(ins, rep)); ++count) {
         ins = tmp + len_rep;
     }
 
@@ -271,7 +271,7 @@ static char* replaceHelpTokens(const char* text)
     FOR_EACH_LANG_END
 
 
-    char* replaced1 = str_replace(text, "$LANG_NAMES$", langnames);
+    char* replaced1 = str_replace((char*)text, "$LANG_NAMES$", langnames);
     char* replaced2 = str_replace(replaced1, "$LANG_EXTENSIONS$", langextensions);
     char* replaced3 = str_replace(replaced2, "$LANG_NAMES_PIPE$", langnamespipe);
     free(replaced2);
@@ -3762,14 +3762,16 @@ void initConsole(Console* console, tic_mem* tic, tic_fs* fs, tic_net* net, Confi
                 puts(ptr);
     }
 
-    if (args.cart)
+    if (args.cart) {
         if (!cmdLoadCart(console, args.cart))
         {
             printf("error: cart `%s` not loaded\n", args.cart);
             exit(1);
-        }
-        else 
+        } else {
             getStartScreen()->embed = true;
+        }
+    }
+            
 
     console->active = !start->embed;
 }

@@ -24,6 +24,6 @@
 
 #include "cart.h"
 
-bool tic_project_load(const char* name, const char* data, s32 size, tic_cartridge* dst);
+bool tic_project_load(const char* name, const unsigned char* data, s32 size, tic_cartridge* dst);
 s32 tic_project_save(const char* name, void* data, const tic_cartridge* cart);
 bool tic_project_ext(const char* name);

@@ -247,7 +247,7 @@ static bool loadBinarySection(const char* project, const char* comment, const ch
     return done;
 }
 
-bool tic_project_load(const char* name, const char* data, s32 size, tic_cartridge* dst)
+bool tic_project_load(const char* name, const unsigned char* data, s32 size, tic_cartridge* dst)
 {
     char* project = (char*)malloc(size+1);
 

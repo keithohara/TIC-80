@@ -30,6 +30,10 @@
 #include <unistd.h>
 #endif
 
+#if defined(__TIC_MACOSX__)
+#include <mach-o/dyld.h>
+#endif
+
 static void reset(Start* start)
 {
     u8* tile = (u8*)start->tic->ram.tiles.data;
@@ -181,7 +185,7 @@ void initStart(Start* start, tic_mem* tic, const char* cart)
         appPath[size] = '\0';
 #   elif defined(__TIC_MACOSX__)
         s32 size = sizeof appPath;
-        _NSGetExecutablePath(appPath, &size);
+        _NSGetExecutablePath(appPath, (uint32_t*)&size);
 #   endif
     
         s32 appSize = 0;

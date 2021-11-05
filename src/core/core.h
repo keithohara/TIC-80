@@ -173,7 +173,7 @@ typedef struct
     tic_mem memory; // it should be first
 
     void* currentVM;
-    tic_script_config* currentScript;
+    const tic_script_config* currentScript;
 
     struct
     {
