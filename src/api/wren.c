@@ -1443,7 +1443,7 @@ static bool initWren(tic_mem* tic, const char* code)
 
     WrenVM* vm = core->currentVM = wrenNewVM(&config);
 
-    initLuaAPI(core);
+    initAPI(core);
     
     if (wrenInterpret(core->currentVM, "main", code) != WREN_RESULT_SUCCESS)
     {
