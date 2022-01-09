@@ -51,7 +51,7 @@ WASM_EXPORT("OVR") void OVR ();
 #define SOUND_STATE        ((uint8_t*) 0x13FFC)
 #define STEREO_VOLUME      ((uint8_t*) 0x14000)
 #define PERSISTENT_RAM     ((uint8_t*) 0x14004)
-#define PERSISTENT_RAM_u32 ((uint8_t*) 0x14004)
+#define PERSISTENT_RAM_u32 ((uint32_t*) 0x14004)
 #define SPRITE_FLAGS       ((uint8_t*) 0x14404)
 #define SYSTEM_FONT        ((uint8_t*) 0x14604)
 
@@ -134,7 +134,6 @@ void line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color);
 WASM_IMPORT("map")
 void map(int32_t x, int32_t y, int32_t w, int32_t h, int32_t sx, int32_t sy,
 	  uint8_t* trans_colors, uint8_t colorCount,  int32_t scale,  int32_t remap);
-// todo: why is remap a uint32_t?
 
 WASM_IMPORT("mget")
 uint8_t mget(int32_t x, int32_t y);
@@ -144,7 +143,6 @@ void mset(int32_t x, int32_t y, uint8_t value);
 
 WASM_IMPORT("pix")
 uint8_t pix(int32_t x, int32_t y, int8_t color);
-//if color == -1 this should return color
 
 WASM_IMPORT("rect")
 void rect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color);
@@ -188,11 +186,11 @@ int32_t font(const char *text, uint32_t x, int32_t y, int32_t transcolor,
 WASM_IMPORT("music")
 void music(int32_t track, int32_t frame, int32_t row,
 	   bool loop, bool sustain, int32_t tempo, int32_t speed);
-// sfx id [note] [duration=-1] [channel=0]
+// sfx id [note] [duration=-1] [octave] [channel=0]
 //        [volumeleft=15] [volumeright=15] [speed=0]
 WASM_IMPORT("sfx")
-void sfx(int32_t id, int32_t note, int32_t duration, int32_t channel,
-	 int32_t volume_left, int32_t volume_right, int32_t speed);
+void sfx(int32_t id, int32_t note, int32_t octave,  int32_t duration,
+	 int32_t channel, int32_t volume_left, int32_t volume_right, int32_t speed);
 
 
 // ------
@@ -241,7 +239,6 @@ uint64_t tstamp();
 
 WASM_IMPORT("sync")
 void sync(int32_t mask, int8_t bank, int8_t tocart);
-// TODO should tocart be bool?
 
 WASM_IMPORT("trace")
 void trace(const char *text, int32_t color);
@@ -253,10 +250,3 @@ void exit();
 
 WASM_IMPORT("reset")
 void reset();
-
-/** Prints a message to the debug console. */
-//WASM_IMPORT("trace") void trace (const char* str);
-
-/** Prints a message to the debug console. */
-//__attribute__((__format__ (__printf__, 1, 2)))
-//WASM_IMPORT("tracef") void tracef (const char* fmt, ...);

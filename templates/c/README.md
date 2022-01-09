@@ -3,7 +3,7 @@
 This is a C / TIC-80 starter template.  To build it:
 
 ```
-export WASI_SDK_PATH=
+export WASI_SDK_PATH=/where/you/installed/WASI
 make
 ```
 
@@ -21,7 +21,14 @@ import binary build/cart.wasm
 save
 ```
 
-Alternatively, you can change the script line to `script: wasm` of an
-exisiting cartridge and then import.
-
 This is assuming you've run TIC-80 with `--fs .` inside your project directory.
+
+
+Alternatively, you can change the script tag of an existing cartridge and then import.
+
+For WASM cartridges the script tag should be written as such:
+
+```
+-- script: wasm
+```
+
