@@ -143,8 +143,8 @@ WASM_IMPORT("mset")
 void mset(int32_t x, int32_t y, uint8_t value);
 
 WASM_IMPORT("pix")
-void pix(int32_t x, int32_t y, int8_t color);
-// TODO: BROKEN if color == -1 this should return color
+uint8_t pix(int32_t x, int32_t y, int8_t color);
+//if color == -1 this should return color
 
 WASM_IMPORT("rect")
 void rect(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color);
