@@ -384,9 +384,9 @@ void tic_api_cls(tic_mem* memory, u8 color)
             core->state.clip.r - core->state.clip.l, core->state.clip.b - core->state.clip.t, color);
 }
 
-s32 tic_api_font(tic_mem* memory, const char* text, s32 x, s32 y, u8 chromakey, s32 w, s32 h, bool fixed, s32 scale, bool alt)
+s32 tic_api_font(tic_mem* memory, const char* text, s32 x, s32 y, u8* trans_colors, u8 trans_count, s32 w, s32 h, bool fixed, s32 scale, bool alt)
 {
-    u8* mapping = getPalette(memory, &chromakey, 1);
+    u8* mapping = getPalette(memory, trans_colors, trans_count);
 
     // Compatibility : flip top and bottom of the spritesheet
     // to preserve tic_api_font's default target
@@ -410,9 +410,9 @@ s32 tic_api_print(tic_mem* memory, const char* text, s32 x, s32 y, u8 color, boo
     return drawText((tic_core*)memory, &font_face, text, x, y, width, font->height, fixed, mapping, scale, alt);
 }
 
-void tic_api_spr(tic_mem* memory, s32 index, s32 x, s32 y, s32 w, s32 h, u8* colors, s32 count, s32 scale, tic_flip flip, tic_rotate rotate)
+void tic_api_spr(tic_mem* memory, s32 index, s32 x, s32 y, s32 w, s32 h, u8* trans_colors, u8 trans_count, s32 scale, tic_flip flip, tic_rotate rotate)
 {
-    drawSprite((tic_core*)memory, index, x, y, w, h, colors, count, scale, flip, rotate);
+    drawSprite((tic_core*)memory, index, x, y, w, h, trans_colors, trans_count, scale, flip, rotate);
 }
 
 static inline u8* getFlag(tic_mem* memory, s32 index, u8 flag)
@@ -807,12 +807,12 @@ static void drawTexturedTriangle(tic_core* core, float x1, float y1, float x2, f
     }
 }
 
-void tic_api_textri(tic_mem* memory, float x1, float y1, float x2, float y2, float x3, float y3, float u1, float v1, float u2, float v2, float u3, float v3, bool use_map, u8* colors, s32 count)
+void tic_api_textri(tic_mem* memory, float x1, float y1, float x2, float y2, float x3, float y3, float u1, float v1, float u2, float v2, float u3, float v3, bool use_map, u8* trans_colors, u8 trans_count)
 {
-    drawTexturedTriangle((tic_core*)memory, x1, y1, x2, y2, x3, y3, u1, v1, u2, v2, u3, v3, use_map, colors, count);
+    drawTexturedTriangle((tic_core*)memory, x1, y1, x2, y2, x3, y3, u1, v1, u2, v2, u3, v3, use_map, trans_colors, trans_count);
 }
 
-void tic_api_map(tic_mem* memory, s32 x, s32 y, s32 width, s32 height, s32 sx, s32 sy, u8* colors, s32 count, s32 scale, RemapFunc remap, void* data)
+void tic_api_map(tic_mem* memory, s32 x, s32 y, s32 width, s32 height, s32 sx, s32 sy, u8* colors, u8 count, s32 scale, RemapFunc remap, void* data)
 {
     drawMap((tic_core*)memory, &memory->ram->map, x, y, width, height, sx, sy, colors, count, scale, remap, data);
 }
