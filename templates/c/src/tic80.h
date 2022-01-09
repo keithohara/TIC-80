@@ -133,7 +133,7 @@ void line(int32_t x0, int32_t y0, int32_t x1, int32_t y1, uint8_t color);
 
 WASM_IMPORT("map")
 void map(int32_t x, int32_t y, int32_t w, int32_t h, int32_t sx, int32_t sy,
-	  uint8_t* trans_colors, uint8_t colorCount,  int32_t scale,  int32_t remap);
+	  const uint8_t* trans_colors, uint8_t colorCount,  int32_t scale,  int32_t remap);
 
 WASM_IMPORT("mget")
 uint8_t mget(int32_t x, int32_t y);
@@ -151,7 +151,7 @@ WASM_IMPORT("rectb")
 void rectb(int32_t x, int32_t y, int32_t w, int32_t h, uint8_t color);
 
 WASM_IMPORT("spr")
-void spr(int32_t id, int32_t x, int32_t y, uint8_t* trans_colors, int32_t colorCount,
+void spr(int32_t id, int32_t x, int32_t y, const uint8_t* trans_colors, int32_t colorCount,
 	 int32_t scale, int32_t flip, int32_t rotate, int32_t w, int32_t h);
 
 WASM_IMPORT("tri")
@@ -177,8 +177,9 @@ int32_t print(const char *text, int32_t x, int32_t y,
 	      int32_t color, bool fixed, int32_t scale, int32_t smallfont);
 // font text, x, y, [transcolor], [char width], [char height], [fixed=false], [scale=1] -> text width
 WASM_IMPORT("font")
-int32_t font(const char *text, uint32_t x, int32_t y, int32_t transcolor,
-	 int32_t char_width, int32_t char_height, bool fixed, int32_t scale);
+int32_t font(const char *text, uint32_t x, int32_t y, const int32_t* trans_colors, int32_t color_count,
+	     int32_t char_width, int32_t char_height, bool fixed, int32_t scale);
+
 
 // -----
 // AUDIO
