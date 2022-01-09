@@ -1,15 +1,23 @@
-const std = @import("std");
-// comptime std.testing.refAllDecls;
-comptime { std.testing.refAllDecls(@This()); } 
+// ****************************************************************************
+// ****************************************************************************
+//
+//        DO NOT MODIFY THIS FILE.  THIS IS A COPY, NO THE ORIGINAL.
+//
+// ****************************************************************************
+// ****************************************************************************
+//
+// It is merely a copy of `./templates/zig/src/tic80.zig`
+//
+// Modify that file then run `./tools/zig_sync` to update all libraries
+//
+// (yes even the original has this exact comment, be careful)
 
-// comptime {
-//   inline for(std.meta.declarations(@This())) |decl| {
-//     _ = decl;
-//   }
-// }
+const std = @import("std");
+comptime { std.testing.refAllDecls(@This()); } 
 
 // types
 
+const MAX_STRING_SIZE = 200;
 const Offset_i8 = extern struct {
   x: i8,
   y: i8,
@@ -86,6 +94,8 @@ pub const OVR_TRANSPARENCY: *u8 = @intToPtr(*u8, 0x3FF8);
 // import the RAW api
 
 pub const raw = struct {
+    extern fn btn(id: i32) i32;
+    extern fn btnp(id: i32, hold: i32, period: i32 ) bool;
     extern fn clip(x: i32, y: i32, w: i32, h: i32) void;
     extern fn cls(color: i32) void; 
     extern fn circ(x: i32, y: i32, radius: i32, color: i32) void;
@@ -94,10 +104,12 @@ pub const raw = struct {
     extern fn elli(x: i32, y: i32, a: i32, b: i32, color: i32) void;
     extern fn ellib(x: i32, y: i32, a: i32, b: i32, color: i32) void;
     extern fn fget(id: i32, flag: u8) bool;
-    extern fn font(text: [*:0]const u8, x: u32, y: i32, trans_color: i32, char_width: i32, char_height: i32, fixed: bool, scale: i32) i32;
+    extern fn font(text: [*:0]u8, x: u32, y: i32, trans_colors: ?[*]const u8, color_count: i32, char_width: i32, char_height: i32, fixed: bool, scale: i32) i32;
     extern fn fset(id: i32, flag: u8, value: bool) bool;
+    extern fn key(keycode: i32) bool;
+    extern fn keyp(keycode: i32, hold: i32, period: i32 ) bool;
     extern fn line(x0: i32, y0: i32, x1: i32, y1: i32, color: i32) void;
-    extern fn map(x: i32, y: i32, w: i32, h: i32, sx: i32, sy: i32, trans_colors: ?[*]const u8, colorCount: i32, scale: i32, remap: i32) void;
+    extern fn map(x: i32, y: i32, w: i32, h: i32, sx: i32, sy: i32, trans_colors: ?[*]const u8, color_count: i32, scale: i32, remap: i32) void;
     extern fn memcpy(to: u32, from: u32, length: u32) void;
     extern fn memset(addr: u32, value: u8, length: u32) void;
     extern fn mget(x: i32, y:i32) i32;
@@ -114,14 +126,14 @@ pub const raw = struct {
     extern fn poke4(addr4: u32, value: u8) void;
     extern fn poke2(addr2: u32, value: u8) void;
     extern fn poke1(bitaddr: u32, value: u8) void;
-    extern fn print(text: [*:0]const u8, x: i32, y: i32, color: i32, fixed: bool, scale: i32, smallfont: bool) i32;
+    extern fn print(text: [*:0]u8, x: i32, y: i32, color: i32, fixed: bool, scale: i32, smallfont: bool) i32;
     extern fn rect(x: i32, y: i32, w: i32, h:i32, color: i32) void;
     extern fn rectb(x: i32, y: i32, w: i32, h:i32, color: i32) void;    
     extern fn reset() void;
     extern fn sfx(id: i32, note: i32, octave: i32, duration: i32, channel: i32, volumeLeft: i32, volumeRight: i32, speed: i32) void;
-    extern fn spr(id: i32, x: i32, y: i32, trans_colors: ?[*]const u8, colorCount: i32, scale: i32, flip: i32, rotate: i32, w: i32, h: i32) void;
+    extern fn spr(id: i32, x: i32, y: i32, trans_colors: ?[*]const u8, color_count: i32, scale: i32, flip: i32, rotate: i32, w: i32, h: i32) void;
     extern fn sync(mask: i32, bank: i32, tocart: bool) void;
-    extern fn textri(x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, u1: i32, v1: i32, u2: i32, v2: i32, u3: i32, v3: i32, use_map: bool, trans_colors: ?[*]const u8, colorCount: i32) void;
+    extern fn textri(x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, u1: i32, v1: i32, u2: i32, v2: i32, u3: i32, v3: i32, use_map: bool, trans_colors: ?[*]const u8, color_count: i32) void;
     extern fn tri(x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, color: i32) void;
     extern fn trib(x1: i32, y1: i32, x2: i32, y2: i32, x3: i32, y3: i32, color: i32) void;
     extern fn time() f32;
@@ -143,10 +155,22 @@ const MouseData = extern struct {
   right: bool,
 };
 
-pub extern fn btn(id: i32) i32;
-pub extern fn btnp(id: i32, hold: i32, period: i32 ) bool;
-pub extern fn key(keycode: i32) bool;
-pub extern fn keyp(keycode: i32, hold: i32, period: i32 ) bool;
+pub const key = raw.key;
+// TODO: nicer API?
+pub const keyp = raw.keyp;
+pub const held = raw.btnp;
+
+pub fn pressed(id: i32) bool {
+    return raw.btnp(id, -1, -1);
+}
+
+pub fn btn(id: i32) bool {
+    return raw.btn(id) != 0;
+}
+
+pub fn anybtn() bool {
+    return raw.btn(-1) != 0;
+}
 
 
 // -----------------
@@ -170,7 +194,7 @@ pub const mouse = raw.mouse;
 
 // map [x=0 y=0] [w=30 h=17] [sx=0 sy=0] [colorkey=-1] [scale=1] [remap=nil]
 // TODO: remap should be what????
-// pub extern fn map(x: i32, y: i32, w: i32, h: i32, sx: i32, sy: i32, trans_colors: ?[*]u8, colorCount: i32, scale: i32, remap: i32) void;
+// pub extern fn map(x: i32, y: i32, w: i32, h: i32, sx: i32, sy: i32, trans_colors: ?[*]u8, color_count: i32, scale: i32, remap: i32) void;
 
 const MapArgs = struct {
     x: i32 = 0, 
@@ -199,7 +223,7 @@ pub fn getpix(x: i32, y: i32) u8 {
     raw.pix(x,y, -1);
 }
 
-// pub extern fn spr(id: i32, x: i32, y: i32, trans_colors: [*]u8, colorCount: i32, scale: i32, flip: i32, rotate: i32, w: i32, h: i32) void;
+// pub extern fn spr(id: i32, x: i32, y: i32, trans_colors: [*]u8, color_count: i32, scale: i32, flip: i32, rotate: i32, w: i32, h: i32) void;
 
 pub const Flip = enum(u2) {
     no = 0,
@@ -258,19 +282,37 @@ const PrintArgs = struct {
 };
 
 const FontArgs = struct {
-    transparent: u8 = -1,
+    transparent: []const u8 = .{},
     char_width: u8, 
     char_height: u8,
     fixed: bool = false,
     scale: u8 = 1
 };
 
-pub fn print(text: [*:0]const u8, x: i32, y: i32, args: PrintArgs) i32 {
-    return raw.print(text, x, y, args.color, args.fixed, args.scale, args.small_font);
+fn sliceToZString(text: []const u8, buff: [*:0]u8, maxLen: u16) void {
+    var len = std.math.min(maxLen, text.len);
+    std.mem.copy(u8, buff[0..len], text[0..len]);
+    buff[len] = 0; 
 }
 
-pub fn font(text: [*:0]const u8, x: u32, y: i32, args: FontArgs) i32 {
-    return raw.font(text, x, y, args.transparent, args.char_width, args.char_height, args.fixed, args.scale);
+pub fn print(text: []const u8, x: i32, y: i32, args: PrintArgs) i32 {
+    var buff : [MAX_STRING_SIZE:0]u8 = undefined;
+    sliceToZString(text, &buff, MAX_STRING_SIZE);
+    return raw.print(&buff, x, y, args.color, args.fixed, args.scale, args.small_font);
+}
+
+pub fn printf(comptime fmt: []const u8, fmtargs: anytype, x: i32, y: i32, args: PrintArgs) i32 {
+    var buff : [MAX_STRING_SIZE:0]u8 = undefined;
+    _ = std.fmt.bufPrintZ(&buff, fmt, fmtargs) catch unreachable;
+    return raw.print(&buff, x, y, args.color, args.fixed, args.scale, args.small_font);
+}
+
+pub fn font(text: []const u8, x: u32, y: i32, args: FontArgs) i32 {
+    const color_count = @intCast(u8,args.transparent.len);
+    const colors = args.transparent.ptr;
+    var buff : [MAX_STRING_SIZE:0]u8 = undefined;
+    sliceToZString(text, &buff, MAX_STRING_SIZE);
+    return raw.font(&buff, x, y, colors, color_count, args.char_width, args.char_height, args.fixed, args.scale);
 }
 
 
@@ -393,7 +435,11 @@ pub const vbank = raw.vbank;
 
 pub const exit = raw.exit;
 pub const reset = raw.reset;
-pub const trace = raw.trace;
+pub fn trace(text: []const u8) void {
+    var buff : [MAX_STRING_SIZE:0]u8 = undefined;
+    sliceToZString(text, &buff, MAX_STRING_SIZE);
+    raw.trace(&buff);
+}
 
 const SectionFlags = packed struct {
     // tiles   = 1<<0 -- 1

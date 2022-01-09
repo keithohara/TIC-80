@@ -460,8 +460,6 @@ m3ApiRawFunction(wasmtic_peek)
 
     tic_mem* tic = (tic_mem*)getWasmCore(runtime);
 
-    // defaults to 8 bits (peek byte)
-    bits = bits < 0 ? 8 : bits;
     m3ApiReturn(tic_api_peek(tic, address, bits));
 
     m3ApiSuccess();
@@ -511,9 +509,6 @@ m3ApiRawFunction(wasmtic_poke)
     m3ApiGetArg      (int32_t, address)
     m3ApiGetArg      (int8_t, value)
     m3ApiGetArg      (int8_t, bits)
-
-    // defaults to 8 bits (peek byte)
-    bits = bits < 0 ? 8 : bits;
 
     tic_mem* tic = (tic_mem*)getWasmCore(runtime);
 
@@ -723,10 +718,11 @@ m3ApiRawFunction(wasmtic_font)
     m3ApiGetArgMem   (const char *, text)
     m3ApiGetArg      (int32_t, x)
     m3ApiGetArg      (int32_t, y)
-    // purposely a single color here, not an *[]colors
-    m3ApiGetArg      (int8_t, transparent_color)
-
-    // TODO: reasonable defaults? allow passing -1 ?
+    m3ApiGetArgMem   (u8*, trans_colors)
+    m3ApiGetArg      (int8_t, trans_count)
+    if (trans_colors == NULL) {
+        trans_count = 0;
+    }
     m3ApiGetArg      (int8_t, char_width)
     m3ApiGetArg      (int8_t, char_height)
     m3ApiGetArg      (bool, fixed)
@@ -743,7 +739,7 @@ m3ApiRawFunction(wasmtic_font)
     if (scale==0) {
         text_width = 0;
     } else {
-        text_width = tic_api_font(tic, text, x, y, transparent_color, char_width, char_height, fixed, scale, alt);
+        text_width = tic_api_font(tic, text, x, y, trans_colors, trans_count, char_width, char_height, fixed, scale, alt);
     }
     m3ApiReturn(text_width);
 
